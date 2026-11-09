@@ -5,6 +5,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Transport names are public configuration values, not credentials.
+  SECRETS_SCAN_OMIT_KEYS = "MAIL_TRANSPORT"
 
 [functions]
   node_bundler = "esbuild"
