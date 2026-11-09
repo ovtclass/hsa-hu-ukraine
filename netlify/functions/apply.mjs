@@ -4,11 +4,11 @@ import { apply } from '../../worker/api.mjs';
 import { createMailEnvironment } from '../../scripts/mail.mjs';
 
 let mailEnvironment;
-export default async function handler(request) {
+export default async function handler(request, context) {
  try {
   mailEnvironment ||= createMailEnvironment(process.env);
   const response = await apply(request, mailEnvironment);
-  if (response.ok && process.env.CONTEXT === 'production') {
+  if (response.ok && context?.deploy?.context === 'production') {
    try {
     const store = getStore({ name: 'analytics-production-v1', region: 'eu-central-1', consistency: 'strong' });
     await store.set(submissionKey(), '');

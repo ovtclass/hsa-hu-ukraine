@@ -7,7 +7,7 @@ export default async function handler(request, context) {
  if (request.method !== 'POST') return reply(405);
  const origin = new URL(request.url).origin;
  if (request.headers.get('origin') !== origin || request.headers.get('content-type') !== 'application/json') return reply(403);
- if (process.env.CONTEXT !== 'production') return reply(204);
+ if (context?.deploy?.context !== 'production') return reply(204);
  if (!process.env.ANALYTICS_HASH_SECRET || process.env.ANALYTICS_HASH_SECRET.length < 32) return reply(503);
  if (Number(request.headers.get('content-length')) > 1024) return reply(413);
  try {
