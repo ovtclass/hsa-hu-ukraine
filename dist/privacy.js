@@ -33,6 +33,7 @@
   location.reload();
  });
  describe();
+ window.addEventListener('hsa:languagechange', describe);
  banner.hidden = choice !== null;
  notify();
 })();

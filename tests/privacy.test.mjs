@@ -18,7 +18,7 @@ function browser(saved, storageBlocked = false) {
   fetch: (...args) => { calls.push(args); return Promise.resolve(); },
  };
  vm.createContext(context); vm.runInContext(tracker, context); vm.runInContext(privacy, context);
- return { elements, calls, saved: () => stored, click: id => elements[id].handlers.click() };
+ return { elements, calls, setLocale(locale) { context.window.hsaLocale = locale; context.window.dispatchEvent({ type: 'hsa:languagechange' }); }, saved: () => stored, click: id => elements[id].handlers.click() };
 }
 test('notice starts disabled, remembers rejection and allows explicit later opt-in', () => {
  const page = browser(null);
@@ -46,4 +46,12 @@ test('landing loads tracker before consent and makes privacy controls available'
  assert.match(html, /href="\/adatvedelem.html"/);
  const css = await readFile(new URL('../dist/style.css', import.meta.url), 'utf8');
  assert.ok(!css.includes('fonts.googleapis.com'));
+});
+
+test('changing language updates consent status without changing the stored choice or tracking', () => {
+ const page = browser(null);
+ page.setLocale({ messages: { 'A statisztika a döntésedig kikapcsolva marad.': 'Статистику вимкнено.' } });
+ assert.equal(page.elements['privacy-state'].textContent, 'Статистику вимкнено.');
+ assert.equal(page.calls.length, 0);
+ assert.equal(page.saved(), null);
 });
