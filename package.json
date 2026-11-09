@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/preview.mjs",
-    "build:netlify": "node scripts/build-netlify.mjs",
-    "build": "node scripts/build.mjs",
+    "build": "node --check netlify/functions/apply.mjs",
     "test": "node --test"
   },
   "dependencies": {

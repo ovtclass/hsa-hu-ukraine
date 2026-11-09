@@ -1,6 +1,6 @@
 # HSA ukrán munkavállalók landing
 
-HTML/CSS/JavaScript landing, Netlify Function SMTP-küldéssel. A korábbi Sites/Cloudflare Worker Resend-küldése is megmaradt.
+HTML/CSS/JavaScript landing, Netlify Function SMTP-küldéssel.
 
 ## Helyi használat
 
@@ -14,16 +14,16 @@ npm run dev
 
 A fejlesztői oldal címe: http://localhost:4173
 
-Ez a parancs csak az oldal Sites-előnézetét indítja. A Netlify Function és az SMTP helyi kipróbálásához másold a `.env.example` fájlt `.env` néven, töltsd ki, majd futtasd: `npx netlify-cli dev`. A Netlify dev szerver által kiírt címet használd.
+Ez a parancs csak statikus helyi előnézetet indít, e-mailt nem küld. A Netlify Function és az SMTP helyi kipróbálásához másold a `.env.example` fájlt `.env` néven, töltsd ki, majd futtasd: `npx netlify-cli dev`. A Netlify dev szerver által kiírt címet használd.
 
 ## Forrásfájlok
 
 - `dist/index.html`, `dist/style.css`, `dist/script.js`: szerkeszthető oldal
 - `dist/assets/`: képek, változatlan HSA-logó
 - `worker/api.mjs`: jelentkezési végpont
-- `scripts/build.mjs`: a Worker összeállítása
-
-A `dist/server/index.js` generált fájl.
+- `worker/application-email.mjs`: levélsablon
+- `netlify/functions/apply.mjs`: Netlify belépési pont
+- `tests/`: ellenőrzések (`npm test`)
 
 ## E-mail küldés
 
@@ -31,7 +31,7 @@ Címzett alapértelmezetten: info@hsa.hu. Az önéletrajz legfeljebb 4 MB lehet,
 
 ### Netlify telepítés és SMTP
 
-1. Importáld a GitHub-repót a Netlify felületén. A `netlify.toml` beállítja a build parancsot (`npm run build:netlify`), a publikált mappát (`dist`) és az `/api/apply` végpontot. Git-alapú deploy szükséges a Function összeállításához; a `dist` mappa kézi feltöltése önmagában nem elég.
+1. Importáld a GitHub-repót a Netlify felületén. A `netlify.toml` beállítja a build parancsot (`npm run build`), a publikált mappát (`dist`) és az `/api/apply` végpontot. Git-alapú deploy szükséges a Function összeállításához; a `dist` mappa kézi feltöltése önmagában nem elég.
 2. A Netlify projekt Environment variables beállításainál add meg az alábbi változókat Functions hatókörrel (vagy All scopes beállítással):
 
 | Változó | Példa / jelentés |
@@ -49,18 +49,6 @@ Címzett alapértelmezetten: info@hsa.hu. Az önéletrajz legfeljebb 4 MB lehet,
 
 A hitelesítési adatok csak a Function környezetében szerepelnek, a böngészőbe nem kerülnek. A `.env` fájl Gitből kizárt. Hiányos SMTP-konfiguráció esetén a Function hibát jelez, nem vált át észrevétlenül másik szolgáltatóra.
 
-Alternatív Resend-küldéshez: `MAIL_TRANSPORT=resend`, `RESEND_API_KEY`, `APPLICATION_FROM`, opcionálisan `APPLICATION_TO`. A Sites Worker kizárólag ezt a módot használja.
+Alternatív Resend-küldéshez: `MAIL_TRANSPORT=resend`, `RESEND_API_KEY`, `APPLICATION_FROM`, opcionálisan `APPLICATION_TO`.
 
-Az `npm run build:netlify` eltávolítja a generált `dist/server` Worker-csomagot a publikált mappából. Sites-előnézethez az `npm run build` újra létrehozza.
-
-## Git
-
-Az origin: https://github.com/ovtclass/hsa-hu-ukraine.git
-A sites remote az eredeti Sites forrásrepót őrzi.
-
-A csomagot az E:\GIT mappába kicsomagolva az E:\GIT\hsa-hu-ukraine mappát kapod. A csomag a Git-előzményeket is tartalmazza. A GitHub feltöltés az elérés engedélyezése után:
-
-```sh
-cd /d E:\GIT\hsa-hu-ukraine
-git push -u origin main
-```
+A statikus oldal nem igényel csomagolást. Az `npm run build` a Netlify belépési pont szintaxisát ellenőrzi; a Function csomagolását a Netlify végzi.
