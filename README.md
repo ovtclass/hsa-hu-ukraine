@@ -52,3 +52,13 @@ A hitelesítési adatok csak a Function környezetében szerepelnek, a böngész
 Alternatív Resend-küldéshez: `MAIL_TRANSPORT=resend`, `RESEND_API_KEY`, `APPLICATION_FROM`, opcionálisan `APPLICATION_TO`.
 
 A statikus oldal nem igényel csomagolást. Az `npm run build` a Netlify belépési pont szintaxisát ellenőrzi; a Function csomagolását a Netlify végzi.
+
+## Saját statisztika
+
+A statisztika a meglévő Netlify Functions + Blobs szolgáltatáson fut, külső analitikai fiók nélkül. A Blobs tároló régiója `eu-central-1`. A mérés csak production deployon, kifejezett hozzájárulás után működik; DNT/GPC jelzés mellett kimarad.
+
+A `/statisztika` oldal HTTP Basic belépése: felhasználó `admin`, jelszó a Netlify Functions scope-os `ANALYTICS_ADMIN_PASSWORD` változóban (legalább 24 karakter). Külön `ANALYTICS_HASH_SECRET` szükséges (legalább 32 véletlen karakter). Mindkettőt titkos production változóként tárold, soha ne a repóban. Hiányzó beállításnál a riport zárt marad, a mérés 503-at ad.
+
+Nincs nyers IP-, teljes User-Agent-, URL-paraméter- vagy űrlapadat-tárolás. Napi HMAC-azonosító alapján becsüljük a napi látogatókat; több nap összege látogató-nap, nem időszakos egyedi személyszám. A forrás csak a referrer hostneve; hiányzó referrer közvetlen/ismeretlen. Mobil és böngésző felismerése közelítő.
+
+Az események külön, felülírás nélküli Blob objektumok; párhuzamos megnyitások nem írnak felül számlálót. A riport legfeljebb 50 000 rekordot dolgoz fel, és jelzi a csonkítást. A 30 UTC-napon túli eseményekből személyes azonosítót és részletes bontást nem tartalmazó napi megnyitás/jelentkezés összesítést őriz meg korlátlan ideig, és ezekből all-time összesítést mutat; a részletes adatokat napi feladat (02:17 UTC) törli a régieket, futásonként legfeljebb 2000 rekordot. Törlési hibát vagy torlódást a Netlify function naplókban ellenőrizz. A forgalmi mérés és a riport IP-alapú Netlify rate limitet használ. Botok szűrése korlátozott; a statisztika nem auditált forgalomszámláló.
