@@ -1,0 +1,16 @@
+[build]
+  publish = "dist"
+  command = "npm run build:netlify"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/apply"
+  to = "/.netlify/functions/apply"
+  status = 200
+  force = true

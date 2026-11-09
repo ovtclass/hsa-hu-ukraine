@@ -3,7 +3,7 @@ const list=document.querySelector('#faq-list');questions.forEach(([q,a])=>{const
 
 const form=document.querySelector('#application-form'), boxes=[...form.querySelectorAll('[name=jobs]')],cv=document.querySelector('#app-cv'),status=document.querySelector('#form-status');
 function validateJobs(){boxes[0].setCustomValidity(boxes.some(b=>b.checked)?'':'Kérjük, válassz legalább egy állást!')}boxes.forEach(b=>b.addEventListener('change',validateJobs));validateJobs();
-cv.addEventListener('change',()=>{const f=cv.files[0];cv.setCustomValidity(f&&(f.size>5*1024*1024||! /\.(pdf|doc|docx)$/i.test(f.name))?'PDF, DOC vagy DOCX fájlt válassz, legfeljebb 5 MB méretben.':'')});
+cv.addEventListener('change',()=>{const f=cv.files[0];cv.setCustomValidity(f&&(f.size>4*1024*1024||! /\.(pdf|doc|docx)$/i.test(f.name))?'PDF, DOC vagy DOCX fájlt válassz, legfeljebb 4 MB méretben.':'')});
 document.querySelectorAll('.choose').forEach(a=>a.addEventListener('click',()=>{boxes.forEach(b=>b.checked=b.value===a.dataset.job);validateJobs()}));
 form.addEventListener('submit',async e=>{e.preventDefault();validateJobs();if(!form.reportValidity())return;const button=form.querySelector('button');button.disabled=true;status.className='';status.textContent='Jelentkezés küldése…';try{const response=await fetch('/api/apply',{method:'POST',body:new FormData(form)});const data=await response.json();if(!response.ok)throw new Error(data.error||'A küldés nem sikerült. Kérjük, próbáld újra.');status.className='success';status.textContent='Köszönjük a jelentkezésedet! Munkatársunk felveszi veled a kapcsolatot.';form.reset();validateJobs()}catch(error){status.className='error';status.textContent=error.message||'Hálózati hiba történt. Kérjük, próbáld újra.'}finally{button.disabled=false}});
 

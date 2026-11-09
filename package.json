@@ -1,1 +1,14 @@
-{"name":"hsa-landing","private":true,"type":"module","scripts":{"dev":"node scripts/preview.mjs"}}
+{
+  "name": "hsa-landing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/preview.mjs",
+    "build:netlify": "node scripts/build-netlify.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "nodemailer": "^10.4.0"
+  }
+}
