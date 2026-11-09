@@ -62,3 +62,7 @@ A `/statisztika` oldal HTTP Basic belépése: felhasználó `admin`, jelszó a N
 Nincs nyers IP-, teljes User-Agent-, URL-paraméter- vagy űrlapadat-tárolás. Napi HMAC-azonosító alapján becsüljük a napi látogatókat; több nap összege látogató-nap, nem időszakos egyedi személyszám. A forrás csak a referrer hostneve; hiányzó referrer közvetlen/ismeretlen. Mobil és böngésző felismerése közelítő.
 
 Az események külön, felülírás nélküli Blob objektumok; párhuzamos megnyitások nem írnak felül számlálót. A riport legfeljebb 50 000 rekordot dolgoz fel, és jelzi a csonkítást. A 30 UTC-napon túli eseményekből személyes azonosítót és részletes bontást nem tartalmazó napi megnyitás/jelentkezés összesítést őriz meg korlátlan ideig, és ezekből all-time összesítést mutat; a részletes adatokat napi feladat (02:17 UTC) törli a régieket, futásonként legfeljebb 2000 rekordot. Törlési hibát vagy torlódást a Netlify function naplókban ellenőrizz. A forgalmi mérés és a riport IP-alapú Netlify rate limitet használ. Botok szűrése korlátozott; a statisztika nem auditált forgalomszámláló.
+
+## Adatvédelmi felület
+
+Az `adatvedelem.html` tájékoztató és a jelentkezési oldal alján újranyitható panel írja le a saját mérést. Az engedélyezés és elutasítás egyformán elérhető; választás nélkül nincs oldalmegnyitás-mérés. A `hsa-privacy-v1` localStorage-bejegyzés 180 napig érvényes. A követősütit nem használó mérés is hozzájárulás alapján indul; a jelentkezéshez nincs analitikai engedélyhez kötött feltétel. Az oldal nem kér be külső Google Fonts stíluslapot, rendszerbetűket használ.
