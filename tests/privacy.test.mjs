@@ -41,7 +41,7 @@ test('expired consent, invalid consent and blocked storage all fail closed', () 
 });
 test('landing loads tracker before consent and makes privacy controls available', async () => {
  const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
- assert.ok(html.indexOf('src="analytics.js"') < html.indexOf('src="privacy.js"'));
+ assert.ok(html.indexOf('src="/analytics.js"') < html.indexOf('src="/privacy.js"'));
  assert.match(html, /id="privacy-settings"/); assert.match(html, /id="privacy-notice"/);
  assert.match(html, /href="\/adatvedelem.html"/);
  const css = await readFile(new URL('../dist/style.css', import.meta.url), 'utf8');

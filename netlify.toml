@@ -12,6 +12,26 @@
   node_bundler = "esbuild"
 
 [[redirects]]
+  from = "/ua"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/ua.html"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/adatvedelem-ua"
+  to = "/adatvedelem.html"
+  status = 301
+
+[[redirects]]
+  from = "/adatvedelem-ua.html"
+  to = "/adatvedelem.html"
+  status = 301
+
+[[redirects]]
   from = "/api/apply"
   to = "/.netlify/functions/apply"
   status = 200

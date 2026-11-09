@@ -116,13 +116,14 @@
     "Adatkezelési tájékoztató ↗": "Інформація про обробку персональних даних ↗",
     "Statisztika és adatvédelem": "Статистика та конфіденційність",
     "Adatvédelmi beállítások": "Налаштування конфіденційності",
-    "Az oldal nem használ követősütiket. Engedélyeddel saját statisztikát készítünk a megnyitásokról, az országról, az eszközről, a böngészőről és a forgalmi forrásról. A napi látogatószámhoz átmenetileg feldolgozzuk az IP-címedet, de nyersen nem tároljuk.": "Сайт не використовує файли cookie для відстеження. За твоєю згодою ми збираємо власну статистику переглядів, країн, пристроїв, браузерів і джерел переходів. Для підрахунку відвідувачів за день ми тимчасово обробляємо твою IP-адресу, але не зберігаємо її у вихідному вигляді.",
     "A döntésedet ezen a böngészőn 180 napig megjegyezzük. Később a láblécben módosíthatod.": "Ми запам’ятаємо твій вибір у цьому браузері на 180 днів. Його можна змінити внизу сторінки.",
     "Részletes tájékoztató": "Докладна інформація",
     "Elutasítom": "Відхилити",
     "Statisztika engedélyezése": "Дозволити статистику",
     "JavaScript nélkül nem készül látogatási statisztika.": "Без JavaScript статистика відвідувань не збирається.",
-    "Adatvédelmi tájékoztató": "Повідомлення про конфіденційність"
+    "Adatvédelmi tájékoztató": "Повідомлення про конфіденційність",
+    "Az oldal nem használ követősütiket. A választott nyelvet egy működési cookie-ban jegyezzük meg. Engedélyeddel saját statisztikát készítünk a megnyitásokról, az országról, az eszközről, a böngészőről és a forgalmi forrásról. A napi látogatószámhoz átmenetileg feldolgozzuk az IP-címedet, de nyersen nem tároljuk.": "Сайт не використовує файли cookie для відстеження. Функціональний файл cookie запам’ятовує вибрану мову. За твоєю згодою ми збираємо власну статистику переглядів, країн, пристроїв, браузерів і джерел переходів. Для підрахунку відвідувачів за день ми тимчасово обробляємо твою IP-адресу, але не зберігаємо її у вихідному вигляді.",
+    "Statisztika és adatvédelmi beállítások | HSA": "Статистика та конфіденційність | HSA"
   },
   "attributes": {
     "HSA kezdőlap": "Головна сторінка HSA",
@@ -132,7 +133,8 @@
     "Gyári munkások közös összeszerelési munkát végeznek": "Працівники підприємства разом виконують складальні роботи",
     "Teljes neved": "Твоє ім’я та прізвище",
     "pelda@email.com": "pryklad@email.com",
-    "Ismerd meg a HSA magyarországi álláslehetőségeit Gyöngyösön és Jászárokszálláson. Stabil munka, átlátható feltételek, segítség a következő lépéshez.": "Дізнайся про вакансії HSA в Угорщині — у Дьєндьєші та Ясароксаллаші. Стабільна робота, прозорі умови та допомога з наступним кроком."
+    "Ismerd meg a HSA magyarországi álláslehetőségeit Gyöngyösön és Jászárokszálláson. Stabil munka, átlátható feltételek, segítség a következő lépéshez.": "Дізнайся про вакансії HSA в Угорщині — у Дьєндьєші та Ясароксаллаші. Стабільна робота, прозорі умови та допомога з наступним кроком.",
+    "A HSA jelentkezési oldal látogatási statisztikájának és helyi adatvédelmi beállításainak tájékoztatója.": "Інформація про статистику відвідувань сайту HSA та локальні налаштування конфіденційності."
   },
   "questions": [
     [

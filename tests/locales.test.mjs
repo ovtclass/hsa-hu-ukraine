@@ -5,25 +5,23 @@ import { translateLanding, ukrainian } from '../scripts/build-locales.mjs';
 import { apply } from '../worker/api.mjs';
 
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
-test('both static languages have accessible switches with only the current language active', async () => {
- const hu = await read('dist/index.html');
- const uk = await read('dist/ua.html');
- assert.match(hu, /<html lang="hu">/); assert.match(uk, /<html lang="uk">/);
- for (const [html, active, inactive] of [[hu, 'hu', 'uk'], [uk, 'uk', 'hu']]) {
-  const nav = html.match(/<nav class="language-switch"[^>]*>(.*?)<\/nav>/s)[1];
-  assert.match(nav, new RegExp(`lang="${active}" hreflang="${active}" aria-current="page"`));
-  assert.ok(!nav.includes(`lang="${inactive}" hreflang="${inactive}" aria-current="page"`));
- }
- assert.match(uk, /href="\/adatvedelem-ua.html"/);
- assert.match(uk, /placeholder="Твоє ім’я та прізвище"/);
- assert.ok(uk.indexOf('src="/uk.js"') < uk.indexOf('src="/script.js"'));
- assert.throws(() => translateLanding(hu.replace('Álláslehetőségek', 'Untranslated new heading')), /Missing Ukrainian/);
- const policy = await read('dist/adatvedelem-ua.html');
- assert.match(policy, /<html lang="uk">/); assert.match(policy, /href="\/ua"/);
+test('one landing defaults to Ukrainian and uses JavaScript buttons instead of language URLs', async () => {
+ const html = await read('dist/index.html');
+ assert.match(html, /<html lang="uk">/);
+ assert.match(html, /data-language="uk" lang="uk" aria-pressed="true"/);
+ assert.match(html, /data-language="hu" lang="hu" aria-pressed="false"/);
+ assert.ok(!html.includes('href="/ua"'));
+ assert.ok(html.indexOf('src="/language.js"') < html.indexOf('src="/script.js"'));
+ assert.match(html, /placeholder="Твоє ім’я та прізвище"/);
+ const source = await read('locales/index.hu.html');
+ assert.throws(() => translateLanding(source.replace('Álláslehetőségek', 'Untranslated new heading')), /Missing Ukrainian/);
+ const policy = await read('dist/adatvedelem.html');
+ assert.match(policy, /hsa_language/);
+ assert.match(policy, /data-language-panel="hu" hidden/);
 });
 
 test('Ukrainian form keeps canonical Hungarian jobs and sends Hungarian notification emails', async () => {
- const uk = await read('dist/ua.html');
+ const uk = await read('dist/index.html');
  const jobs = [...uk.matchAll(/name="jobs" value="([^"]+)"/g)].map(match => match[1]);
  assert.deepEqual(jobs, ['Gyöngyös – Operátor', 'Jászárokszállás – Betanított ülőmunka']);
  const form = new FormData();

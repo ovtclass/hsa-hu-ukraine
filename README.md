@@ -69,4 +69,6 @@ Az `adatvedelem.html` tájékoztató és a jelentkezési oldal alján újranyith
 
 ## Nyelvek
 
-A magyar oldal a `/`, az ukrán változat a `/ua` címen érhető el. Az UA / HU váltó aktív nyelve félkövér, mobilon is látható. Az `npm run build` a `dist/index.html` és `locales/uk.json` alapján állítja elő a `dist/ua.html` és `dist/uk.js` fájlokat. Hiányzó szövegfordítás esetén a build hibával leáll. Az ukrán adatvédelmi tájékoztató külön a `dist/adatvedelem-ua.html` fájlban található. A GYIK, az űrlapüzenetek és a hozzájárulási panel is lokalizált. A backend mindkét nyelven magyar állásazonosítókat kap, és változatlanul magyar jelentkezési e-mailt állít elő.
+Az oldal egy URL-en működik, alapból ukránul. Az UA / HU gombok JavaScripttel váltanak, az űrlap DOM-elemeinek cseréje nélkül. A `hsa_language` működési cookie 180 napig tárolja a nyelvet (uk vagy hu; SameSite=Lax, Path=/, HTTPS-en Secure). Ha nincs érvényes nyelvi cookie, ukránul nyílik meg. A cookie megtekintéskor/váltáskor megújul. A működési nyelvi beállítás független az opcionális analitikai hozzájárulástól.
+
+Az `npm run build` a `locales/index.hu.html`, `locales/uk.json`, a két `locales/privacy.*.html` forrás és a `scripts/language-runtime.js` alapján állítja elő az egyetlen landinget, az egyetlen adatvédelmi oldalt és a közös `dist/language.js` fájlt. A szövegeket a forrásokban szerkeszd, majd futtasd újra a buildet. Hiányzó fordításnál a build leáll. A korábbi /ua linkeket átirányítjuk a főoldalra. Az e-mail nyelve és a backend magyar állásazonosítói nem változnak.

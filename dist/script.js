@@ -1,6 +1,9 @@
 const t = text => window.hsaLocale?.messages[text] || text;
 const questions=[['Dolgozhatok Magyarországon ukrán állampolgárként?','Igen, megfelelő tartózkodási és munkavállalási jogosultság esetén. A pontos feltételek a jelenlegi státuszodtól és az egyéni körülményeidtől függenek.'],['Ha Lengyelországban vagy Csehországban dolgozom, átköltözhetek Magyarországra?','Lehetséges, de a másik országban kiadott tartózkodási vagy munkavállalási engedély nem biztosít automatikusan magyarországi munkavállalási jogosultságot. Munkatársunk tájékoztat a jelentkezés feltételeiről.'],['Mi történik, ha katonai kötelezettség alá tartozom?','A katonai kötelezettség jelenleg önmagában nem jelent akadályt a magyarországi ideiglenes védelem kérelmezésénél: az OIF tájékoztatása szerint a hadköteles ukrán állampolgárokra vonatkozó feltételek nem változtak. A tartózkodási és munkavállalási jogosultságodat, illetve a más uniós országban fennálló védelmedet ettől függetlenül egyénileg kell megvizsgálni.'],['Beszélnem kell magyarul?','Nem, a bemutatott állásokra magyar nyelvtudás nélkül is jelentkezhetsz. A munkavégzéshez kapcsolódó tudnivalókat és az egyeztetés részleteit munkatársunkkal beszélheted át.'],['Van szálláslehetőség?','Igen, van szálláslehetőség. Az elhelyezés részleteiről, a szállás körülményeiről és az igénybevétel feltételeiről munkatársunk a jelentkezés során ad tájékoztatást.']];
-const list=document.querySelector('#faq-list');(window.hsaLocale?.questions || questions).forEach(([q,a])=>{const d=document.createElement('details');const s=document.createElement('summary');s.append(document.createTextNode(q));const plus=document.createElement('span');plus.textContent='+';plus.setAttribute('aria-hidden','true');s.append(plus);const p=document.createElement('p');p.textContent=a;d.append(s,p);list.append(d)});
+const list=document.querySelector('#faq-list');
+questions.forEach(()=>{const d=document.createElement('details'),s=document.createElement('summary'),q=document.createTextNode(''),plus=document.createElement('span'),p=document.createElement('p');plus.textContent='+';plus.setAttribute('aria-hidden','true');s.append(q,plus);d.append(s,p);list.append(d)});
+function localizeQuestions(){(window.hsaLocale?.questions || questions).forEach(([q,a],index)=>{const detail=list.children[index];detail.querySelector('summary').firstChild.nodeValue=q;detail.querySelector('p').textContent=a})}
+localizeQuestions();
 
 const form=document.querySelector('#application-form'), boxes=[...form.querySelectorAll('[name=jobs]')],cv=document.querySelector('#app-cv'),status=document.querySelector('#form-status');
 function validateJobs(){boxes[0].setCustomValidity(boxes.some(b=>b.checked)?'':t("Kérjük, válassz legalább egy állást!"))}boxes.forEach(b=>b.addEventListener('change',validateJobs));validateJobs();
@@ -10,7 +13,7 @@ form.addEventListener('submit',async e=>{e.preventDefault();validateJobs();if(!f
 
 if('IntersectionObserver' in window&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const targets=document.querySelectorAll('.intro>div,.section-head,.job,.about>div,.steps .wrap>h2,.step-grid article,.faq>div,.apply-inner>div');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}}),{threshold:.08});targets.forEach(el=>{el.classList.add('reveal');observer.observe(el)});document.documentElement.classList.add('motion-ready')}
 
-if(document.documentElement.lang==='uk'){
+{
  for(const input of form.querySelectorAll('[name=name],[name=email],[name=phone],[name=consent]')){
   input.addEventListener('invalid',()=>{
    if(input.validity.valueMissing)input.setCustomValidity(t(input.name==='consent'?'Kérjük, fogadd el az adatkezelési tájékoztatót.':'Kérjük, töltsd ki ezt a mezőt.'));
@@ -21,3 +24,14 @@ if(document.documentElement.lang==='uk'){
   input.addEventListener('change',()=>input.setCustomValidity(''));
  }
 }
+
+window.addEventListener('hsa:languagechange',()=>{
+ localizeQuestions();
+ for(const input of form.querySelectorAll('[name=name],[name=email],[name=phone],[name=consent]'))input.setCustomValidity('');
+ validateJobs();
+ cv.dispatchEvent(new Event('change'));
+ const messages=window.hsaTranslations.messages;
+ const current=status.textContent;
+ const source=Object.keys(messages).find(key=>key===current||messages[key]===current);
+ if(source)status.textContent=t(source);
+});

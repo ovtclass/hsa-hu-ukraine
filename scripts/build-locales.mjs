@@ -14,16 +14,19 @@ export function translateLanding(source) {
   return part.replace(text, ukrainian.text[text]);
  }).join('');
  if (missing.size) throw new Error('Missing Ukrainian translations: ' + [...missing].join(' | '));
- html = html.replace('<html lang="hu">', '<html lang="uk">')
-  .replace('href="/ua" lang="uk" hreflang="uk"', 'href="/ua" lang="uk" hreflang="uk" aria-current="page"')
-  .replace('href="/" lang="hu" hreflang="hu" aria-current="page"', 'href="/" lang="hu" hreflang="hu"')
-  .replaceAll('href="/adatvedelem.html"', 'href="/adatvedelem-ua.html"')
-  .replace('<script src="script.js">', '<script src="uk.js"></script><script src="script.js">');
- html = html.replace(/(src|href)="((?:assets\/)[^"]+|(?:style|privacy|script|analytics|uk)\.(?:css|js))"/g, '$1="/$2"');
+ html = html.replace('<html lang="hu">', '<html lang="uk">');
+ html = html.replace(/(src|href)="((?:assets\/)[^"]+|(?:style|privacy|script|analytics|language)\.(?:css|js))"/g, '$1="/$2"');
  return html;
 }
 export function buildLocales() {
- writeFileSync(new URL('dist/ua.html', root), translateLanding(readFileSync(new URL('dist/index.html', root), 'utf8')));
- writeFileSync(new URL('dist/uk.js', root), 'window.hsaLocale = ' + JSON.stringify({ questions: ukrainian.questions, messages: ukrainian.messages }) + ';\n');
+ writeFileSync(new URL('dist/index.html', root), translateLanding(readFileSync(new URL('locales/index.hu.html', root), 'utf8')));
+ const huPolicy = readFileSync(new URL('locales/privacy.hu.html', root), 'utf8');
+ const ukPolicy = readFileSync(new URL('locales/privacy.uk.html', root), 'utf8');
+ const content = html => html.match(/<main class="privacy-page">([\s\S]*?)<\/main>/)[1];
+ const switcher = '<nav class="language-switch" aria-label="Вибір мови"><button type="button" data-language="uk" lang="uk" aria-pressed="true">UA</button><span aria-hidden="true">/</span><button type="button" data-language="hu" lang="hu" aria-pressed="false">HU</button></nav>';
+ let policy = ukPolicy.replace(content(ukPolicy), switcher + '<section data-language-panel="uk">' + content(ukPolicy) + '</section><section data-language-panel="hu" hidden>' + content(huPolicy) + '</section>');
+ policy = policy.replace('</body>', '<script src="/language.js"></script></body>');
+ writeFileSync(new URL('dist/adatvedelem.html', root), policy);
+ writeFileSync(new URL('dist/language.js', root), 'window.hsaTranslations = ' + JSON.stringify(ukrainian) + ';\n' + readFileSync(new URL('scripts/language-runtime.js', root), 'utf8'));
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) buildLocales();
