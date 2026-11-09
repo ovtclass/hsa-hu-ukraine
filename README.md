@@ -66,3 +66,7 @@ Az események külön, felülírás nélküli Blob objektumok; párhuzamos megny
 ## Adatvédelmi felület
 
 Az `adatvedelem.html` tájékoztató és a jelentkezési oldal alján újranyitható panel írja le a saját mérést. Az engedélyezés és elutasítás egyformán elérhető; választás nélkül nincs oldalmegnyitás-mérés. A `hsa-privacy-v1` localStorage-bejegyzés 180 napig érvényes. A követősütit nem használó mérés is hozzájárulás alapján indul; a jelentkezéshez nincs analitikai engedélyhez kötött feltétel. Az oldal nem kér be külső Google Fonts stíluslapot, rendszerbetűket használ.
+
+## Nyelvek
+
+A magyar oldal a `/`, az ukrán változat a `/ua` címen érhető el. Az UA / HU váltó aktív nyelve félkövér, mobilon is látható. Az `npm run build` a `dist/index.html` és `locales/uk.json` alapján állítja elő a `dist/ua.html` és `dist/uk.js` fájlokat. Hiányzó szövegfordítás esetén a build hibával leáll. Az ukrán adatvédelmi tájékoztató külön a `dist/adatvedelem-ua.html` fájlban található. A GYIK, az űrlapüzenetek és a hozzájárulási panel is lokalizált. A backend mindkét nyelven magyar állásazonosítókat kap, és változatlanul magyar jelentkezési e-mailt állít elő.

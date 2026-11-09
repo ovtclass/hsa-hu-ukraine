@@ -68,9 +68,9 @@ test('reports fail closed without credentials and collection rejects cross-site 
 });
 test('browser tracker sends nothing before consent, respects DNT and strips referrer details', async () => {
  const script = await readFile(new URL('../dist/analytics.js', import.meta.url), 'utf8');
- function run(navigator = {}) {
+ function run(navigator = {}, pathname = '/') {
   let handler; const calls = [];
-  vm.runInNewContext(script, { window: { addEventListener: (_, callback) => { handler = callback; } }, navigator, location: { pathname: '/' }, document: { referrer: 'https://google.com/search?q=private#name' }, URL, fetch: (...args) => { calls.push(args); return Promise.resolve(); } });
+  vm.runInNewContext(script, { window: { addEventListener: (_, callback) => { handler = callback; } }, navigator, location: { pathname }, document: { referrer: 'https://google.com/search?q=private#name' }, URL, fetch: (...args) => { calls.push(args); return Promise.resolve(); } });
   return { calls, consent: value => handler({ detail: value }) };
  }
  const tracker = run(); assert.equal(tracker.calls.length, 0);
@@ -79,4 +79,6 @@ test('browser tracker sends nothing before consent, respects DNT and strips refe
  assert.equal(JSON.parse(tracker.calls[0][1].body).referrer, 'https://google.com');
  const dnt = run({ doNotTrack: '1' }); dnt.consent(true); assert.equal(dnt.calls.length, 0);
  const gpc = run({ globalPrivacyControl: true }); gpc.consent(true); assert.equal(gpc.calls.length, 0);
+ const uk = run({}, '/ua'); uk.consent(true); assert.equal(uk.calls.length, 1);
+ assert.equal(JSON.parse(uk.calls[0][1].body).path, '/');
 });

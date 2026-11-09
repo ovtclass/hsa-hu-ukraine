@@ -1,7 +1,7 @@
 (() => {
  let sent = false;
  window.addEventListener('hsa:analytics-consent', event => {
-  if (event.detail !== true || sent || navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true || location.pathname !== '/') return;
+  if (event.detail !== true || sent || navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true || !['/', '/ua', '/ua/', '/ua.html'].includes(location.pathname)) return;
   sent = true;
   let referrer = '';
   try { referrer = new URL(document.referrer).origin; } catch { /* No source information. */ }

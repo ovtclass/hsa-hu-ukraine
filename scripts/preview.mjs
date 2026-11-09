@@ -12,7 +12,7 @@ http.createServer(async (req, res) => {
    return;
   }
   if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return; }
-  const file = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
+  const file = url.pathname === '/' ? 'index.html' : ['/ua','/ua/'].includes(url.pathname) ? 'ua.html' : url.pathname.slice(1);
   if (!/^(?:[\w-]+\.(?:html|css|js)|assets\/[\w.-]+\.(?:jpg|png))$/.test(file)) { res.writeHead(404); res.end(); return; }
   const data = await readFile(new URL(`../dist/${file}`, import.meta.url));
   res.writeHead(200, { 'Content-Type': types[file.split('.').pop()], 'X-Content-Type-Options': 'nosniff' });
