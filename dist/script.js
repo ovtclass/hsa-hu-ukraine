@@ -5,9 +5,8 @@ questions.forEach(()=>{const d=document.createElement('details'),s=document.crea
 function localizeQuestions(){(window.hsaLocale?.questions || questions).forEach(([q,a],index)=>{const detail=list.children[index];detail.querySelector('summary').firstChild.nodeValue=q;detail.querySelector('p').textContent=a})}
 localizeQuestions();
 
-const form=document.querySelector('#application-form'), boxes=[...form.querySelectorAll('[name=jobs]')],cv=document.querySelector('#app-cv'),status=document.querySelector('#form-status');
+const form=document.querySelector('#application-form'), boxes=[...form.querySelectorAll('[name=jobs]')],status=document.querySelector('#form-status');
 function validateJobs(){boxes[0].setCustomValidity(boxes.some(b=>b.checked)?'':t("Kérjük, válassz legalább egy állást!"))}boxes.forEach(b=>b.addEventListener('change',validateJobs));validateJobs();
-cv.addEventListener('change',()=>{const f=cv.files[0];cv.setCustomValidity(f&&(f.size>4*1024*1024||! /\.(pdf|doc|docx)$/i.test(f.name))?t("PDF, DOC vagy DOCX fájlt válassz, legfeljebb 4 MB méretben."):'')});
 document.querySelectorAll('.choose').forEach(a=>a.addEventListener('click',()=>{boxes.forEach(b=>b.checked=b.value===a.dataset.job);validateJobs()}));
 form.addEventListener('submit',async e=>{e.preventDefault();validateJobs();if(!form.reportValidity())return;const button=form.querySelector('button');button.disabled=true;status.className='';status.textContent=t("Jelentkezés küldése…");try{let response;try{response=await fetch('/api/apply',{method:'POST',body:new FormData(form)})}catch{throw new Error(t('Hálózati hiba történt. Kérjük, próbáld újra.'))}let data;try{data=await response.json()}catch{throw new Error(t('A küldés nem sikerült. Kérjük, próbáld újra.'))}if(!response.ok)throw new Error(t(data.error)||t("A küldés nem sikerült. Kérjük, próbáld újra."));status.className='success';status.textContent=t("Köszönjük a jelentkezésedet! Munkatársunk felveszi veled a kapcsolatot.");form.reset();validateJobs()}catch(error){status.className='error';status.textContent=t(error.message)||t("Hálózati hiba történt. Kérjük, próbáld újra.")}finally{button.disabled=false}});
 
@@ -29,7 +28,6 @@ window.addEventListener('hsa:languagechange',()=>{
  localizeQuestions();
  for(const input of form.querySelectorAll('[name=name],[name=email],[name=phone],[name=consent]'))input.setCustomValidity('');
  validateJobs();
- cv.dispatchEvent(new Event('change'));
  const messages=window.hsaTranslations.messages;
  const current=status.textContent;
  const source=Object.keys(messages).find(key=>key===current||messages[key]===current);

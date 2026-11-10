@@ -6,7 +6,7 @@ import { apply } from '../worker/api.mjs';
 import { applicationEmail } from '../worker/application-email.mjs';
 
 const settings = { MAIL_TRANSPORT: 'smtp', SMTP_HOST: 'smtp.example.com', SMTP_USER: 'user', SMTP_PASS: 'test-password', APPLICATION_FROM: 'sender@example.com' };
-function request({ consent = true, attachment = true } = {}) {
+function request({ consent = true, attachment = false } = {}) {
  const form = new FormData();
  for (const [key, value] of Object.entries({ name: 'Teszt Elek', email: 'applicant@example.com', phone: '+3612345678', jobs: 'Gyöngyös - Operátor' })) form.append(key, value);
  if (consent) form.append('consent', 'on');
@@ -14,7 +14,7 @@ function request({ consent = true, attachment = true } = {}) {
  return new Request('https://example.com/api/apply', { method: 'POST', headers: { origin: 'https://example.com' }, body: form });
 }
 
-test('SMTP uses TLS and generates a MIME message with reply address and intact attachment', async () => {
+test('SMTP uses TLS and generates a MIME message with reply address without attachments', async () => {
  let options, raw;
  const env = createMailEnvironment(settings, config => {
   options = config;
@@ -29,21 +29,19 @@ test('SMTP uses TLS and generates a MIME message with reply address and intact a
  assert.equal(options.requireTLS, true);
  assert.equal(options.secure, false);
  assert.match(raw, /Reply-To: applicant@example.com/);
- assert.match(raw, /To: info@hsa.hu/);
+ assert.match(raw, /To: kanya.istvan@hsagroup.hu/);
  assert.match(raw, /Content-Type: text\/html/);
  assert.match(raw, /Content-Type: text\/plain/);
- assert.match(raw, /filename=oneletrajz.pdf/);
- assert.match(raw, new RegExp(Buffer.from('test-cv-content').toString('base64')));
+ assert.ok(!raw.includes('filename='));
 });
 
-test('email escapes applicant data and includes CV status and Budapest time', () => {
+test('email escapes applicant data and omits CV status and Budapest time', () => {
  const content = applicationEmail({ name: '<img src=x onerror=alert(1)> & "Name"', email: 'a@example.com', phone: '+36000000000', jobs: ['Gyöngyös - Operátor'], hasCv: false, submittedAt: new Date('2026-11-09T12:00:00Z') });
  assert.ok(!content.html.includes('<img'));
  assert.ok(content.html.includes('&lt;img src=x onerror=alert(1)&gt; &amp; &quot;Name&quot;'));
- assert.ok(content.html.includes('Nem csatolt önéletrajzot'));
+ assert.ok(!content.html.includes('Önéletrajz'));
  assert.ok(content.html.includes('13:00'));
  assert.ok(content.text.includes('<img src=x onerror=alert(1)>'));
- assert.ok(applicationEmail({ name: 'Név', email: 'a@example.com', phone: '+36000000000', jobs: [], hasCv: true, submittedAt: new Date() }).html.includes('Csatolva a levélhez'));
 });
 
 test('implicit TLS, configuration errors and rejected recipients', async () => {

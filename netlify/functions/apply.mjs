@@ -6,8 +6,10 @@ import { createMailEnvironment } from '../../scripts/mail.mjs';
 let mailEnvironment;
 export default async function handler(request, context) {
  try {
-  mailEnvironment ||= createMailEnvironment(process.env);
-  const response = await apply(request, mailEnvironment);
+  try { mailEnvironment ||= createMailEnvironment(process.env); } catch { mailEnvironment = {}; }
+  const production = context?.deploy?.context === 'production';
+  const applications = getStore({ name: production ? 'applications-production-v1' : 'applications-preview-' + (context?.deploy?.id || 'local'), region: 'eu-central-1', consistency: 'strong' });
+  const response = await apply(request, { ...mailEnvironment, SAVE_APPLICATION: record => applications.setJSON(record.id, record) });
   if (response.ok && context?.deploy?.context === 'production') {
    try {
     const store = getStore({ name: 'analytics-production-v1', region: 'eu-central-1', consistency: 'strong' });
