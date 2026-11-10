@@ -27,10 +27,10 @@ async function load() {
   for (const [key, label] of [['countries', 'Ország'], ['devices', 'Eszköz'], ['browsers', 'Böngésző'], ['sources', 'Forrás']]) {
    table(key, [label, 'Megnyitás'], Object.entries(data[key]).sort((a, b) => b[1] - a[1]).map(([name, value]) => [key === 'countries' && /^[A-Z]{2}$/.test(name) ? countries.of(name) : name, number(value)]));
   }
-  status.textContent = data.since + ' – ' + data.until + (data.truncated ? ' · Részleges riport: az 50 000 megnyitásos feldolgozási korlátot elérte. Válassz rövidebb időszakot.' : ' · Frissítve: ' + new Date().toLocaleTimeString('hu-HU'));
+  status.textContent = data.since + ' - ' + data.until + (data.truncated ? ' · Részleges riport: az 50 000 megnyitásos feldolgozási korlátot elérte. Válassz rövidebb időszakot.' : ' · Frissítve: ' + new Date().toLocaleTimeString('hu-HU'));
  } catch (error) {
   status.textContent = error.message;
-  document.querySelector('#views').textContent = '–'; document.querySelector('#visitors').textContent = '–';
+  document.querySelector('#views').textContent = '-'; document.querySelector('#visitors').textContent = '-';
   for (const id of ['days', 'countries', 'devices', 'browsers', 'sources']) document.querySelector('#' + id).replaceChildren();
  } finally { button.disabled = false; }
 }

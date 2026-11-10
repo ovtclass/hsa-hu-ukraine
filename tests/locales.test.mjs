@@ -23,7 +23,7 @@ test('one landing defaults to Ukrainian and uses JavaScript buttons instead of l
 test('Ukrainian form keeps canonical Hungarian jobs and sends Hungarian notification emails', async () => {
  const uk = await read('dist/index.html');
  const jobs = [...uk.matchAll(/name="jobs" value="([^"]+)"/g)].map(match => match[1]);
- assert.deepEqual(jobs, ['Gyöngyös – Operátor', 'Jászárokszállás – Betanított ülőmunka']);
+ assert.deepEqual(jobs, ['Gyöngyös - Operátor', 'Jászárokszállás - Betanított ülőmunka']);
  const form = new FormData();
  for (const [key, value] of Object.entries({ name: 'Олена Коваль', email: 'applicant@example.com', phone: '+380501234567', consent: 'on' })) form.set(key, value);
  jobs.forEach(job => form.append('jobs', job));
@@ -32,7 +32,7 @@ test('Ukrainian form keeps canonical Hungarian jobs and sends Hungarian notifica
  assert.equal(response.status, 200);
  assert.equal(message.subject, 'Új HSA állásjelentkezés');
  assert.match(message.text, /Jelentkező neve: Олена Коваль/);
- assert.match(message.text, /Megjelölt állások: Gyöngyös – Operátor/);
+ assert.match(message.text, /Megjelölt állások: Gyöngyös - Operátor/);
  assert.match(message.html, /Új állásjelentkezés érkezett/);
  assert.ok(!message.html.includes('Нова заявка'));
 });

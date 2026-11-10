@@ -8,7 +8,7 @@ import { applicationEmail } from '../worker/application-email.mjs';
 const settings = { MAIL_TRANSPORT: 'smtp', SMTP_HOST: 'smtp.example.com', SMTP_USER: 'user', SMTP_PASS: 'test-password', APPLICATION_FROM: 'sender@example.com' };
 function request({ consent = true, attachment = true } = {}) {
  const form = new FormData();
- for (const [key, value] of Object.entries({ name: 'Teszt Elek', email: 'applicant@example.com', phone: '+3612345678', jobs: 'Gyöngyös – Operátor' })) form.append(key, value);
+ for (const [key, value] of Object.entries({ name: 'Teszt Elek', email: 'applicant@example.com', phone: '+3612345678', jobs: 'Gyöngyös - Operátor' })) form.append(key, value);
  if (consent) form.append('consent', 'on');
  if (attachment) form.append('cv', new Blob(['test-cv-content']), 'cv.pdf');
  return new Request('https://example.com/api/apply', { method: 'POST', headers: { origin: 'https://example.com' }, body: form });
@@ -37,7 +37,7 @@ test('SMTP uses TLS and generates a MIME message with reply address and intact a
 });
 
 test('email escapes applicant data and includes CV status and Budapest time', () => {
- const content = applicationEmail({ name: '<img src=x onerror=alert(1)> & "Name"', email: 'a@example.com', phone: '+36000000000', jobs: ['Gyöngyös – Operátor'], hasCv: false, submittedAt: new Date('2026-11-09T12:00:00Z') });
+ const content = applicationEmail({ name: '<img src=x onerror=alert(1)> & "Name"', email: 'a@example.com', phone: '+36000000000', jobs: ['Gyöngyös - Operátor'], hasCv: false, submittedAt: new Date('2026-11-09T12:00:00Z') });
  assert.ok(!content.html.includes('<img'));
  assert.ok(content.html.includes('&lt;img src=x onerror=alert(1)&gt; &amp; &quot;Name&quot;'));
  assert.ok(content.html.includes('Nem csatolt önéletrajzot'));
