@@ -22,36 +22,36 @@ function browser(saved, storageBlocked = false) {
 }
 test('notice starts disabled, remembers rejection and allows explicit later opt-in', () => {
  const page = browser(null);
- assert.equal(page.calls.length, 0); assert.equal(page.elements['privacy-notice'].hidden, false);
- page.click('privacy-reject'); assert.equal(page.calls.length, 0);
+ assert.equal(page.calls.length, 1); assert.equal(page.elements['privacy-notice'].hidden, false);
+ page.click('privacy-reject'); assert.equal(page.calls.length, 1);
  assert.equal(JSON.parse(page.saved()).allowed, false);
- const next = browser(page.saved()); assert.equal(next.elements['privacy-notice'].hidden, true); assert.equal(next.calls.length, 0);
+ const next = browser(page.saved()); assert.equal(next.elements['privacy-notice'].hidden, true); assert.equal(next.calls.length, 1);
  next.click('privacy-settings'); assert.equal(next.elements['privacy-notice'].hidden, false);
- next.click('privacy-accept'); assert.equal(next.calls.length, 1);
- const accepted = browser(next.saved()); assert.equal(accepted.calls.length, 1);
+ next.click('privacy-accept'); assert.equal(next.calls.length, 2);
+ const accepted = browser(next.saved()); assert.equal(accepted.calls.length, 2);
  accepted.click('privacy-settings'); accepted.click('privacy-reject');
- assert.equal(browser(accepted.saved()).calls.length, 0);
+ assert.equal(browser(accepted.saved()).calls.length, 1);
 });
 test('expired consent, invalid consent and blocked storage all fail closed', () => {
  for (const saved of ['invalid', JSON.stringify({ version: 1, allowed: true, expires: Date.now() - 1 }), JSON.stringify({ version: 0, allowed: true, expires: Date.now() + 100000 })]) {
-  const page = browser(saved); assert.equal(page.calls.length, 0); assert.equal(page.elements['privacy-notice'].hidden, false);
+  const page = browser(saved); assert.equal(page.calls.length, 1); assert.equal(page.elements['privacy-notice'].hidden, false);
  }
- const blocked = browser(null, true); assert.equal(blocked.calls.length, 0);
- blocked.click('privacy-reject'); assert.equal(blocked.calls.length, 0);
+ const blocked = browser(null, true); assert.equal(blocked.calls.length, 1);
+ blocked.click('privacy-reject'); assert.equal(blocked.calls.length, 1);
 });
 test('landing loads tracker before consent and makes privacy controls available', async () => {
- const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
+ const html = await readFile(new URL('../dist/cz-pl/index.html', import.meta.url), 'utf8');
  assert.ok(html.indexOf('src="/analytics.js"') < html.indexOf('src="/privacy.js"'));
  assert.match(html, /id="privacy-settings"/); assert.match(html, /id="privacy-notice"/);
- assert.match(html, /href="\/adatvedelem.html"/);
+ assert.match(html, /href="\/cz-pl\/adatvedelem.html"/);
  const css = await readFile(new URL('../dist/style.css', import.meta.url), 'utf8');
  assert.ok(!css.includes('fonts.googleapis.com'));
 });
 
 test('changing language updates consent status without changing the stored choice or tracking', () => {
  const page = browser(null);
- page.setLocale({ messages: { 'A statisztika a döntésedig kikapcsolva marad.': 'Статистику вимкнено.' } });
+ page.setLocale({ messages: { 'A részletes statisztika a döntésedig kikapcsolva marad.': 'Статистику вимкнено.' } });
  assert.equal(page.elements['privacy-state'].textContent, 'Статистику вимкнено.');
- assert.equal(page.calls.length, 0);
+ assert.equal(page.calls.length, 1);
  assert.equal(page.saved(), null);
 });

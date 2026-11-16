@@ -9,7 +9,8 @@ export default async function handler(request, context) {
   try { mailEnvironment ||= createMailEnvironment(process.env); } catch { mailEnvironment = {}; }
   const production = context?.deploy?.context === 'production';
   const applications = getStore({ name: production ? 'applications-production-v1' : 'applications-preview-' + (context?.deploy?.id || 'local'), region: 'eu-central-1', consistency: 'strong' });
-  const response = await apply(request, { ...mailEnvironment, SAVE_APPLICATION: record => applications.setJSON(record.id, record) });
+  const response = await apply(request, { ...mailEnvironment, SAVE_APPLICATION: record => applications.setJSON(record.id, record), LOG_APPLICATION: event => console.info(JSON.stringify({ event, requestId: context?.requestId })) });
+  if (!response.ok) console.warn(JSON.stringify({ event: 'application_rejected', status: response.status, requestId: context?.requestId }));
   if (response.ok && context?.deploy?.context === 'production') {
    try {
     const store = getStore({ name: 'analytics-production-v1', region: 'eu-central-1', consistency: 'strong' });

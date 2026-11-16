@@ -17,13 +17,18 @@ export function sourceHost(referrer, origin) {
   return url.hostname.toLowerCase().slice(0, 120);
  } catch { return 'Közvetlen / ismeretlen'; }
 }
-export function eventKey({ ip, ua, country, referrer, origin, secret, now = new Date() }) {
+export function eventKey({ ip, ua, country, referrer, origin, secret, kind, path, now = new Date() }) {
  const date = day(now);
  const { browser, device } = deviceInfo(ua);
  // Daily pseudonym: raw IP and full User-Agent are never persisted.
  const visitor = ip ? createHmac('sha256', secret).update(JSON.stringify([date, ip, browser, device])).digest('hex').slice(0, 32) : randomUUID();
  const data = { visitor, browser, device, country: /^[A-Z]{2}$/.test(country || '') ? country : 'Ismeretlen', source: sourceHost(referrer, origin) };
+ if (kind === 'detail') { data.kind = 'detail'; data.path = path; }
  return `${date}/${Buffer.from(JSON.stringify(data)).toString('base64url')}/${randomUUID()}`;
+}
+export function pageviewKey(path, now = new Date()) {
+ if (!['/', '/cz-pl'].includes(path)) throw new Error('Invalid landing path');
+ return `${day(now)}/${Buffer.from(JSON.stringify({ kind: 'pageview', path })).toString('base64url')}/${randomUUID()}`;
 }
 export function authorized(request, password) {
  if (!password || password.length < 24) return false;
@@ -44,7 +49,7 @@ function decode(key) {
 export async function summarize(store, days, now = new Date(), maxEvents = 50000) {
  const today = day(now);
  const since = day(new Date(Date.parse(`${today}T00:00:00Z`) - (days - 1) * 86400000));
- const summary = { pageviews: 0, submissions: 0, visitorDays: 0, allTime: { pageviews: 0, submissions: 0 }, since, until: today, truncated: false, days: {}, countries: {}, devices: {}, browsers: {}, sources: {} };
+ const summary = { pageviews: 0, detailedPageviews: 0, submissions: 0, visitorDays: 0, allTime: { pageviews: 0, submissions: 0 }, since, until: today, truncated: false, days: {}, pages: {}, countries: {}, devices: {}, browsers: {}, sources: {} };
  const rolledUp = new Set();
  for await (const page of store.list({ prefix: 'totals/', paginate: true })) {
   for (const { key } of page.blobs) {
@@ -64,13 +69,19 @@ export async function summarize(store, days, now = new Date(), maxEvents = 50000
    if (date > today || rolledUp.has(date)) continue;
    if (scanned++ >= maxEvents) { summary.truncated = true; break; }
    const event = decode(key);
-   if (!event || (event.kind !== 'submission' && typeof event.visitor !== 'string')) continue;
+   if (!event || (!['submission', 'pageview'].includes(event.kind) && typeof event.visitor !== 'string')) continue;
    const field = event.kind === 'submission' ? 'submissions' : 'pageviews';
-   summary.allTime[field]++;
+   if (event.kind !== 'detail') summary.allTime[field]++;
    if (date < since) continue;
    const daily = summary.days[date] ||= { pageviews: 0, submissions: 0, visitors: 0 };
-   summary[field]++; daily[field]++;
+   if (event.kind !== 'detail') { summary[field]++; daily[field]++; }
    if (field === 'submissions') continue;
+   if (event.kind !== 'detail') {
+    const path = event.path === '/cz-pl' ? '/cz-pl' : '/';
+    summary.pages[path] = (summary.pages[path] || 0) + 1;
+   }
+   if (typeof event.visitor !== 'string') continue;
+   summary.detailedPageviews++;
    if (!dailyVisitors.has(date)) dailyVisitors.set(date, new Set());
    dailyVisitors.get(date).add(event.visitor); visitors.add(`${date}/${event.visitor}`);
    for (const [target, prop] of [['countries', 'country'], ['devices', 'device'], ['browsers', 'browser'], ['sources', 'source']]) {
@@ -102,7 +113,7 @@ export async function purgeExpired(store, now = new Date(), limit = 2000) {
     for (const { key } of page.blobs) {
      const event = decode(key);
      if (event?.kind === 'submission') totals.submissions++;
-     else if (typeof event?.visitor === 'string') totals.pageviews++;
+     else if (event?.kind === 'pageview' || (typeof event?.visitor === 'string' && event.kind !== 'detail')) totals.pageviews++;
     }
    }
    // Closed days only. A durable, create-only checkpoint precedes any deletion.

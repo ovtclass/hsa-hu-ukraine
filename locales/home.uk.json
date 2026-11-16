@@ -1,0 +1,51 @@
+{
+  "text": {
+    "Munka Magyarországon. Támasz a családodnak. | HSA": "Робота в Угорщині. Підтримка для твоєї родини. | HSA",
+    "DOLGOZZ MAGYARORSZÁGON A CSALÁDODÉRT": "ПРАЦЮЙ В УГОРЩИНІ ЗАРАДИ СВОЄЇ РОДИНИ",
+    "Ukrajnában élsz, és Magyarországon vállalnál munkát? Találj stabil munkalehetőséget, és támogasd kereseteddel a családodat.": "Живеш в Україні та хочеш працювати в Угорщині? Знайди стабільну роботу й підтримуй свою родину завдяки заробітку.",
+    "Stabil munka.": "Стабільна робота.",
+    "Támasz a családodnak.": "Підтримка для твоєї родини.",
+    "A magyarországi munkával rendszeres jövedelemre tehetsz szert, amellyel az otthon maradt szeretteidet is támogathatod. A HSA segít megismerni az állásajánlatokat, a munkafeltételeket és a jelentkezés lépéseit.": "Робота в Угорщині дає можливість отримувати регулярний дохід і підтримувати близьких, які залишилися вдома. HSA допоможе ознайомитися з вакансіями, умовами праці та кроками подання заявки.",
+    "Dolgozz Magyarországon.": "Працюй в Угорщині.",
+    "Segítsd a": "Підтримуй",
+    "családodat.": "свою родину.",
+    "Kereseteddel az otthoniakat is támogathatod.": "Завдяки заробітку ти можеш підтримувати близьких удома.",
+    "Érdekel valamelyik állás? Add meg az elérhetőségeidet. Munkatársunkkal átbeszélheted a munkát és a kereseti lehetőségeket, mielőtt döntesz.": "Зацікавила вакансія? Залиш свої контактні дані. Перш ніж вирішити, ти зможеш обговорити роботу та заробіток із нашим співробітником.",
+    "A családodtól távol munkát vállalni komoly döntés. Több mint 30 év munkaerőpiaci tapasztalatával segítünk: átbeszéljük veled a munkafeltételeket és a jelentkezés menetét, hogy tudd, mire számíthatsz.": "Робота далеко від родини потребує обдуманого рішення. Ми маємо понад 30 років досвіду на ринку праці. Обговоримо з тобою умови праці та подання заявки, щоб ти знав, чого очікувати."
+  },
+  "attributes": {
+    "Dolgozz Magyarországon, és támogasd a családodat! Ismerd meg a HSA gyöngyösi és jászárokszállási állásajánlatait. Ingyenes jelentkezés, segítség az első lépéstől.": "Працюй в Угорщині та підтримуй свою родину! Дізнайся про вакансії HSA у Дьєндьєші та Ясароксаллаші. Безкоштовне подання заявки й допомога з першого кроку."
+  },
+  "questions": [
+    [
+      "Чи можу я працювати в Угорщині як громадянин України?",
+      "Так, за наявності належного права на перебування та працевлаштування. Точні умови залежать від твого поточного статусу й особистих обставин."
+    ],
+    [
+      "Як подати заявку з України?",
+      "Залиш свої контактні дані та обери вакансію, яка тебе цікавить. Наш співробітник зв’яжеться з тобою, щоб обговорити можливості та умови подання заявки."
+    ],
+    [
+      "Коли я зможу дізнатися більше про початок роботи?",
+      "Після подання заявки ти зможеш обговорити з нашим співробітником графік роботи, оплату та можливу дату початку роботи. Перед поїздкою узгодьте умови, що стосуються тебе, та необхідні документи."
+    ],
+    [
+      "Чи потрібно мені знати угорську мову?",
+      "Ні, на ці вакансії можна подати заявку без знання угорської. Наш співробітник пояснить, як відбуватиметься спілкування на роботі."
+    ],
+    [
+      "Чи надається житло?",
+      "Так, житло є. Під час розгляду заявки наш співробітник розповість, де можна жити та на яких умовах."
+    ]
+  ],
+  "hungarianQuestions": [
+    [
+      "Hogyan jelentkezhetek Ukrajnából?",
+      "Add meg az elérhetőségeidet, és válaszd ki a számodra érdekes állást. Munkatársunk felveszi veled a kapcsolatot, és átbeszélitek a lehetőségeket és a jelentkezés feltételeit."
+    ],
+    [
+      "Mikor tudhatok meg többet a munkába állásról?",
+      "A jelentkezés után munkatársunkkal egyeztetheted a munkarendet, a bérezést és a munkába állás lehetséges időpontját. Indulás előtt beszéljétek át a rád vonatkozó feltételeket és a szükséges dokumentumokat."
+    ]
+  ]
+}

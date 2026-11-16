@@ -32,3 +32,16 @@ test('dashboard and CSV require authentication, escape HTML and neutralize formu
  assert.ok(applicationsCsv([row]).includes("'=1+1"));
  assert.ok(applicationsCsv([row]).includes("'+3612345678"));
 });
+
+test('formatted Ukrainian phone numbers are normalized before saving and rejected input is logged without personal data', async()=>{
+ for(const phone of ['+380\u00a067\u202f123\u00a045\u00a067','+380\u200b67 123\u201145\u201167']){
+  const form=await request().formData();form.set('phone',phone);
+  const saved=[],events=[];
+  const response=await apply(new Request('https://example.com/api/apply',{method:'POST',body:form}),{SAVE_APPLICATION:async r=>saved.push(structuredClone(r)),SEND_APPLICATION_EMAIL:async()=>{},LOG_APPLICATION:event=>events.push(event)});
+  assert.equal(response.status,200);assert.match(saved[0].phone,/^\+380[0-9 -]+$/);assert.ok(events.includes('application_saved'));
+ }
+ const form=await request().formData();form.set('phone','abcdefghi');
+ const events=[];let saved=false;
+ const response=await apply(new Request('https://example.com/api/apply',{method:'POST',body:form}),{SAVE_APPLICATION:async()=>{saved=true},LOG_APPLICATION:event=>events.push(event)});
+ assert.equal(response.status,400);assert.equal(saved,false);assert.deepEqual(events,['validation_rejected']);
+});

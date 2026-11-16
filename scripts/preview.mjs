@@ -12,9 +12,9 @@ http.createServer(async (req, res) => {
    return;
   }
   if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return; }
-  if (['/ua','/ua/','/ua.html'].includes(url.pathname)) { res.writeHead(301, { Location: '/' }); res.end(); return; }
-  const file = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
-  if (!/^(?:[\w-]+\.(?:html|css|js)|assets\/[\w.-]+\.(?:jpg|png))$/.test(file)) { res.writeHead(404); res.end(); return; }
+  if (['/ua','/ua/','/ua.html'].includes(url.pathname)) { res.writeHead(301, { Location: '/cz-pl/' }); res.end(); return; }
+  const file = url.pathname === '/' ? 'index.html' : ['/cz-pl', '/cz-pl/'].includes(url.pathname) ? 'cz-pl/index.html' : url.pathname.slice(1);
+  if (!/^(?:(?:cz-pl\/)?[\w-]+\.(?:html|css|js)|assets\/[\w.-]+\.(?:jpg|png))$/.test(file)) { res.writeHead(404); res.end(); return; }
   const data = await readFile(new URL(`../dist/${file}`, import.meta.url));
   res.writeHead(200, { 'Content-Type': types[file.split('.').pop()], 'X-Content-Type-Options': 'nosniff' });
   res.end(req.method === 'HEAD' ? undefined : data);

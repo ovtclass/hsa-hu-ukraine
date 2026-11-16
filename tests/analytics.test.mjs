@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
-import { eventKey, authorized, summarize, purgeExpired, deviceInfo, sourceHost, submissionKey } from '../worker/analytics.mjs';
-import collect from '../netlify/functions/analytics.mjs';
+import { eventKey, authorized, summarize, purgeExpired, deviceInfo, sourceHost, submissionKey, pageviewKey } from '../worker/analytics.mjs';
+import collect, { collect as collectEvent } from '../netlify/functions/analytics.mjs';
 import report from '../netlify/functions/analytics-report.mjs';
 
 const now = new Date('2026-11-09T12:00:00Z');
@@ -66,19 +66,55 @@ test('reports fail closed without credentials and collection rejects cross-site 
  assert.equal((await report(new Request('https://example.com/statisztika'))).status, 401);
  assert.equal((await collect(new Request('https://example.com/analytics', { method: 'POST', headers: { Origin: 'https://evil.example', 'Content-Type': 'application/json' }, body: '{}' }), {})).status, 403);
 });
-test('browser tracker sends nothing before consent, respects DNT and strips referrer details', async () => {
+test('browser counts each landing without consent and sends optional details only once', async () => {
  const script = await readFile(new URL('../dist/analytics.js', import.meta.url), 'utf8');
  function run(navigator = {}, pathname = '/') {
   let handler; const calls = [];
   vm.runInNewContext(script, { window: { addEventListener: (_, callback) => { handler = callback; } }, navigator, location: { pathname }, document: { referrer: 'https://google.com/search?q=private#name' }, URL, fetch: (...args) => { calls.push(args); return Promise.resolve(); } });
-  return { calls, consent: value => handler({ detail: value }) };
+  return { calls, consent: value => handler?.({ detail: value }) };
  }
- const tracker = run(); assert.equal(tracker.calls.length, 0);
- tracker.consent(false); assert.equal(tracker.calls.length, 0);
- tracker.consent(true); tracker.consent(true); assert.equal(tracker.calls.length, 1);
- assert.equal(JSON.parse(tracker.calls[0][1].body).referrer, 'https://google.com');
- const dnt = run({ doNotTrack: '1' }); dnt.consent(true); assert.equal(dnt.calls.length, 0);
- const gpc = run({ globalPrivacyControl: true }); gpc.consent(true); assert.equal(gpc.calls.length, 0);
- const uk = run({}, '/ua'); uk.consent(true); assert.equal(uk.calls.length, 1);
- assert.equal(JSON.parse(uk.calls[0][1].body).path, '/');
+ for (const path of ['/', '/cz-pl', '/cz-pl/', '/ua', '/ua/', '/ua.html']) {
+  const tracker = run({}, path); assert.equal(tracker.calls.length, 1);
+  const options = tracker.calls[0][1];
+  assert.deepEqual(JSON.parse(options.body), { kind: 'pageview', path: path.startsWith('/cz-pl') ? '/cz-pl' : '/' });
+  assert.equal(options.credentials, 'omit'); assert.equal(options.referrerPolicy, 'no-referrer');
+  tracker.consent(false); assert.equal(tracker.calls.length, 1);
+  tracker.consent(true); tracker.consent(true); assert.equal(tracker.calls.length, 2);
+  const detail = JSON.parse(tracker.calls[1][1].body);
+  assert.equal(detail.kind, 'detail'); assert.equal(detail.referrer, 'https://google.com');
+ }
+ for (const navigator of [{ doNotTrack: '1' }, { globalPrivacyControl: true }]) {
+  const tracker = run(navigator); tracker.consent(true); assert.equal(tracker.calls.length, 1);
+ }
+ for (const path of ['/adatvedelem.html','/statisztika','/jelentkezok','/cz-pl/adatvedelem.html']) assert.equal(run({},path).calls.length, 0);
+});
+
+test('collector stores only a day and landing for basic views and requires consent for details', async () => {
+ const keys=[]; const store={async set(key){keys.push(key)}};
+ const context={deploy:{context:'production'},ip:input.ip,geo:{country:{code:'HU'}}};
+ const request=(data,headers={})=>new Request('https://example.com/.netlify/functions/analytics',{method:'POST',headers:{Origin:'https://example.com','Content-Type':'application/json','User-Agent':input.ua,...headers},body:JSON.stringify(data)});
+ assert.equal((await collectEvent(request({kind:'pageview',path:'/cz-pl',referrer:'https://private.example',visitor:'forged'}),context,{store,secret:''})).status,204);
+ assert.deepEqual(decode(keys[0]),{kind:'pageview',path:'/cz-pl'});
+ assert.equal((await collectEvent(request({kind:'detail',path:'/cz-pl',consent:false}),context,{store,secret:input.secret})).status,400);
+ assert.equal((await collectEvent(request({kind:'pageview',path:'/private'}),context,{store})).status,400);
+ assert.equal((await collectEvent(request({kind:'detail',path:'/cz-pl',consent:true}),context,{store,secret:''})).status,503);
+ assert.equal((await collectEvent(request({kind:'detail',path:'/cz-pl',consent:true}),context,{store,secret:input.secret})).status,204);
+ assert.equal(keys.length,2);assert.equal(decode(keys[1]).kind,'detail');
+ assert.equal((await collectEvent(request({kind:'detail',path:'/',consent:true},{DNT:'1'}),context,{store,secret:input.secret})).status,204);
+ assert.equal((await collectEvent(request({kind:'pageview',path:'/'},{'User-Agent':'Googlebot'}),context,{store})).status,204);
+ assert.equal((await collectEvent(request({kind:'pageview',path:'/'}),{deploy:{context:'deploy-preview'}},{store})).status,204);
+ assert.equal(keys.length,2);
+});
+
+test('basic views and consenting detail events do not double count, including after retention cleanup', async () => {
+ const old=new Date('2026-10-01T10:00:00Z');
+ const store=fakeStore([pageviewKey('/',now),pageviewKey('/cz-pl',now),eventKey({...input,kind:'detail',path:'/cz-pl'}),eventKey(input),submissionKey(now),pageviewKey('/cz-pl',old),eventKey({...input,now:old,kind:'detail',path:'/cz-pl'})]);
+ let report=await summarize(store,30,now);
+ assert.equal(report.pageviews,3); assert.equal(report.detailedPageviews,2); assert.equal(report.visitorDays,1);
+ assert.deepEqual(report.pages,{'/':2,'/cz-pl':1}); assert.deepEqual(report.allTime,{pageviews:4,submissions:1});
+ await purgeExpired(store,now,1);
+ report=await summarize(store,30,now);
+ assert.deepEqual(report.allTime,{pageviews:4,submissions:1});
+ await purgeExpired(store,now);await purgeExpired(store,now);
+ assert.deepEqual((await summarize(store,30,now)).allTime,{pageviews:4,submissions:1});
 });

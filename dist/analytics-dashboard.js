@@ -23,15 +23,16 @@ async function load() {
   document.querySelector('#all-submissions').textContent = number(data.allTime.submissions);
   document.querySelector('#views').textContent = number(data.pageviews);
   document.querySelector('#visitors').textContent = number(data.visitorDays);
-  table('days', ['Nap (UTC)', 'Megnyitás', 'Napi látogató'], Object.entries(data.days).sort(([a], [b]) => b.localeCompare(a)).map(([day, values]) => [day, number(values.pageviews), number(values.submissions), number(values.visitors)]));
+  table('days', ['Nap (UTC)', 'Megnyitás', 'Mentett jelentkezés', 'Napi látogató (hozzájárulással)'], Object.entries(data.days).sort(([a], [b]) => b.localeCompare(a)).map(([day, values]) => [day, number(values.pageviews), number(values.submissions), number(values.visitors)]));
+  table('pages', ['Oldal', 'Megnyitás'], Object.entries(data.pages || {}).map(([path, count]) => [path, number(count)]));
   for (const [key, label] of [['countries', 'Ország'], ['devices', 'Eszköz'], ['browsers', 'Böngésző'], ['sources', 'Forrás']]) {
    table(key, [label, 'Megnyitás'], Object.entries(data[key]).sort((a, b) => b[1] - a[1]).map(([name, value]) => [key === 'countries' && /^[A-Z]{2}$/.test(name) ? countries.of(name) : name, number(value)]));
   }
-  status.textContent = data.since + ' - ' + data.until + (data.truncated ? ' · Részleges riport: az 50 000 megnyitásos feldolgozási korlátot elérte. Válassz rövidebb időszakot.' : ' · Frissítve: ' + new Date().toLocaleTimeString('hu-HU'));
+  status.textContent = data.since + ' - ' + data.until + (data.truncated ? ' · Részleges riport: az 50 000 eseményes feldolgozási korlátot elérte. Válassz rövidebb időszakot.' : ' · Frissítve: ' + new Date().toLocaleTimeString('hu-HU'));
  } catch (error) {
   status.textContent = error.message;
   document.querySelector('#views').textContent = '-'; document.querySelector('#visitors').textContent = '-';
-  for (const id of ['days', 'countries', 'devices', 'browsers', 'sources']) document.querySelector('#' + id).replaceChildren();
+  for (const id of ['days', 'pages', 'countries', 'devices', 'browsers', 'sources']) document.querySelector('#' + id).replaceChildren();
  } finally { button.disabled = false; }
 }
 document.querySelector('#refresh').addEventListener('click', load);

@@ -14,7 +14,7 @@
  }
  function describe() {
   const translate = text => window.hsaLocale?.messages[text] || text;
-  state.textContent = translate(choice === true ? 'Jelenlegi választás: statisztika engedélyezve.' : choice === false ? 'Jelenlegi választás: statisztika elutasítva.' : 'A statisztika a döntésedig kikapcsolva marad.');
+  state.textContent = translate(choice === true ? 'Jelenlegi választás: részletes statisztika engedélyezve.' : choice === false ? 'Jelenlegi választás: részletes statisztika elutasítva.' : 'A részletes statisztika a döntésedig kikapcsolva marad.');
  }
  function save(allowed) {
   choice = allowed;
