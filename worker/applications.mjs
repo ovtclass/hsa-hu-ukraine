@@ -1,7 +1,9 @@
+import { applicationSourceLabel } from './application-source.mjs';
+
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const status=value=>({sent:'Elküldve',failed:'Sikertelen',pending:'Függőben'}[value]||'Ismeretlen');
-const values=r=>[new Date(r.submittedAt).toLocaleString('hu-HU',{timeZone:'Europe/Budapest'}),r.name,r.email,r.phone,r.jobs.join(', '),status(r.notification),r.consent?'Megadva':'Hiányzik',r.consentVersion];
-const headings=['Beküldés (magyar idő)','Név','E-mail','Telefon','Állás','E-mail értesítés','Hozzájárulás','Tájékoztató verziója'];
+const values=r=>[new Date(r.submittedAt).toLocaleString('hu-HU',{timeZone:'Europe/Budapest'}),r.name,r.email,r.phone,r.jobs.join(', '),applicationSourceLabel(r.sourcePage),status(r.notification),r.consent?'Megadva':'Hiányzik',r.consentVersion];
+const headings=['Beküldés (magyar idő)','Név','E-mail','Telefon','Állás','Jelentkezés oldala','E-mail értesítés','Hozzájárulás','Tájékoztató verziója'];
 export function applicationsCsv(rows){
  const cell=value=>'"'+String(value??'').replace(/^[\s]*[=+@-]/,"'$&").replace(/"/g,'""')+'"';
  return '\uFEFF'+[headings,...rows.map(values)].map(row=>row.map(cell).join(';')).join('\r\n');

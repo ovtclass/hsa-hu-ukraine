@@ -1,10 +1,13 @@
+import { applicationSourceLabel } from './application-source.mjs';
+
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
-export function applicationEmail({ name, email, phone, jobs, submittedAt }) {
+export function applicationEmail({ name, email, phone, jobs, sourcePage, submittedAt }) {
  const date = new Intl.DateTimeFormat('hu-HU', { timeZone: 'Europe/Budapest', dateStyle: 'long', timeStyle: 'short' }).format(submittedAt);
  const rows = [
   ['Jelentkező neve', name], ['E-mail-cím', email], ['Telefonszám', phone],
   ['Megjelölt állások', jobs.join('\n')],
+  ['Jelentkezés oldala', applicationSourceLabel(sourcePage)],
   ['Adatkezelési hozzájárulás', 'Megadva'], ['Beküldés időpontja', `${date} (magyar idő szerint)`],
  ];
  const text = ['Új HSA állásjelentkezés', '', ...rows.map(([label, value]) => `${label}: ${value}`), '', 'A jelentkezőnek közvetlenül erre a levélre válaszolva írhatsz.'].join('\n');

@@ -79,3 +79,10 @@ test('both landing forms post to the backend without JavaScript and have a valid
   assert.equal(regex.test('++380671234567'), false);
  }
 });
+
+test('landing forms submit their own canonical source without depending on JavaScript or consent', async () => {
+ for(const [file,sourcePage] of [['dist/index.html','/'],['dist/cz-pl/index.html','/cz-pl/']]) {
+  const html=await read(file);
+  assert.ok(html.includes('<input type="hidden" name="sourcePage" value="'+sourcePage+'">'));
+ }
+});

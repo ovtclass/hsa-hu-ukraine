@@ -45,3 +45,35 @@ test('formatted Ukrainian phone numbers are normalized before saving and rejecte
  const response=await apply(new Request('https://example.com/api/apply',{method:'POST',body:form}),{SAVE_APPLICATION:async()=>{saved=true},LOG_APPLICATION:event=>events.push(event)});
  assert.equal(response.status,400);assert.equal(saved,false);assert.deepEqual(events,['validation_rejected']);
 });
+
+test('source landing is saved before notification and displayed in the list and CSV', async()=>{
+ for(const sourcePage of ['/','/cz-pl/']){
+  const form=await request().formData();form.set('sourcePage',sourcePage);
+  const saved=[];let message;
+  const response=await apply(new Request('https://example.com/api/apply',{method:'POST',body:form}),{SAVE_APPLICATION:async record=>saved.push(structuredClone(record)),SEND_APPLICATION_EMAIL:async value=>{message=value;throw Error('SMTP unavailable')}});
+  assert.equal(response.status,200);
+  assert.equal(saved.length,2);
+  assert.ok(saved.every(record=>record.sourcePage===sourcePage));
+  const label='ukraine.hsa.hu'+sourcePage;
+  assert.ok(message.text.includes('Jelentkezés oldala: '+label));
+  assert.ok(message.html.includes(label));
+  assert.ok(renderApplications([saved[1]]).includes('<td>'+label+'</td>'));
+  assert.ok(applicationsCsv([saved[1]]).includes('"'+label+'"'));
+  assert.ok(renderApplications([saved[1]]).includes('Jelentkezés oldala'));
+ }
+});
+
+test('legacy forms belong to CZ-PL while unsupported sources remain unknown',async()=>{
+ for(const sourcePage of [undefined,'https://evil.example/private?email=test','__proto__']){
+  const form=await request().formData();if(sourcePage!==undefined)form.set('sourcePage',sourcePage);
+  let saved;
+  const response=await apply(new Request('https://example.com/api/apply',{method:'POST',body:form}),{SAVE_APPLICATION:async record=>{saved=structuredClone(record)},SEND_APPLICATION_EMAIL:async()=>{}});
+  assert.equal(response.status,200);assert.equal(saved.sourcePage,sourcePage===undefined?'/cz-pl/':null);
+  const label=sourcePage===undefined?'ukraine.hsa.hu/cz-pl/':'Ismeretlen';
+  assert.ok(renderApplications([saved]).includes('<td>'+label+'</td>'));
+  assert.ok(applicationsCsv([saved]).includes('"'+label+'"'));
+  delete saved.sourcePage;
+  assert.ok(renderApplications([saved]).includes('<td>ukraine.hsa.hu/cz-pl/</td>'));
+  assert.ok(applicationsCsv([saved]).includes('"ukraine.hsa.hu/cz-pl/"'));
+ }
+});
